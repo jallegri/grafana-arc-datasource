@@ -153,9 +153,9 @@ func JSONToDataFrame(result map[string]interface{}) (*data.Frame, error) {
 		if truncated {
 			reason, _ := result["truncation_reason"].(string)
 			if strings.TrimSpace(reason) == "" {
-				return nil, errors.New("Arc query response was truncated")
+				return nil, errors.New("arc query response was truncated")
 			}
-			return nil, fmt.Errorf("Arc query response was truncated: %s", reason)
+			return nil, fmt.Errorf("arc query response was truncated: %s", reason)
 		}
 	}
 
