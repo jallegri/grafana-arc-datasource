@@ -145,6 +145,20 @@ func queryJSON(ctx context.Context, settings *ArcInstanceSettings, sql string) (
 
 // JSONToDataFrame converts Arc JSON response to Grafana DataFrame
 func JSONToDataFrame(result map[string]interface{}) (*data.Frame, error) {
+	if rawTruncated, exists := result["truncated"]; exists {
+		truncated, ok := rawTruncated.(bool)
+		if !ok {
+			return nil, fmt.Errorf("invalid 'truncated' field in Arc response: expected boolean, got %T", rawTruncated)
+		}
+		if truncated {
+			reason, _ := result["truncation_reason"].(string)
+			if strings.TrimSpace(reason) == "" {
+				return nil, errors.New("Arc query response was truncated")
+			}
+			return nil, fmt.Errorf("Arc query response was truncated: %s", reason)
+		}
+	}
+
 	// Extract column names from Arc response
 	// Arc returns: {"columns": ["col1", "col2", ...], "data": [[row1], [row2], ...], "rows": N}
 	columnsInterface, ok := result["columns"]
